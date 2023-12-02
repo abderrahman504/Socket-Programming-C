@@ -45,7 +45,7 @@ int main(char args[])
     }
 
     //Preparing to create a socket
-    struct addrinfo *result = NULL, *ptr = NULL, hints;
+    struct addrinfo *result = NULL, hints;
     ZeroMemory(&hints, sizeof(hints));
     hints.ai_family = AF_INET;
     hints.ai_socktype = SOCK_STREAM;
