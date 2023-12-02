@@ -1,4 +1,5 @@
-
+#include <winsock2.h>
+#include <ws2tcpip.h>
 
 typedef struct {
     long long time_since_last_request;
@@ -7,7 +8,7 @@ typedef struct {
 }Connection;
 
 typedef struct {
-    int port;
+    SOCKET port;
 }ConnectionArgs;
 
 
