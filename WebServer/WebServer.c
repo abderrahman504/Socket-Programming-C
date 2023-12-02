@@ -5,9 +5,34 @@
 #include "Connection.c"
 
 #define DEFAULT_PORT "60000"
-
-
 WSADATA wsaData;
+
+void listening(SOCKET listen_socket)
+{
+    //Listening on the socket
+    if ( listen( listen_socket, SOMAXCONN ) == SOCKET_ERROR ) {
+        printf( "Listen failed with error: %ld\n", WSAGetLastError() );
+        closesocket(listen_socket);
+        WSACleanup();
+        return 1;
+    }
+
+    while(1)
+    {
+        //Accepting a client
+        SOCKET client_socket = INVALID_SOCKET;
+        client_socket = accept(listen_socket, NULL, NULL);
+        if (client_socket == INVALID_SOCKET) continue;
+        ConnectionArgs* args = (ConnectionArgs*) malloc(sizeof(ConnectionArgs));
+        args->socket = &client_socket;
+        Connection* connection = (Connection*) malloc(sizeof(Connection));
+        connection->th_args = args;
+        connection->thread = (HANDLE) _beginthread(connection, 0, args);
+    }
+}
+
+
+
 
 int main(char args[])
 {
@@ -54,18 +79,8 @@ int main(char args[])
     }
     freeaddrinfo(result);
 
-    //Listening on the socket
-    if ( listen( ListenSocket, SOMAXCONN ) == SOCKET_ERROR ) {
-        printf( "Listen failed with error: %ld\n", WSAGetLastError() );
-        closesocket(ListenSocket);
-        WSACleanup();
-        return 1;
-    }
-    printf("Listening on port %s\n", DEFAULT_PORT);
-
-    // ConnectionArgs t_args = {80};
-    // _beginthread(connection, 0, &t_args);
-    // Sleep(100);
+    
+    listening(ListenSocket);
     printf("Web server closing\n");
     return 0;
 }
