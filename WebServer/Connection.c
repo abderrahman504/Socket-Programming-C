@@ -2,25 +2,51 @@
 #include <ws2tcpip.h>
 #include <string.h>
 #include <stdio.h>
+#include <time.h>
+
+#define BUFFER_LENGTH 1000
 
 typedef struct {
-    long long time_since_last_request;
-    int id;
-    short port;
+    ConnectionArgs* th_args;
+    HANDLE thread;
 }Connection;
 
 typedef struct {
-    SOCKET port;
+    SOCKET* socket;
+    clock_t last_request;
 }ConnectionArgs;
 
 
 void connection(void* args)
 {
     ConnectionArgs* c_args = args;
-    printf("Connection started with port %d\n", c_args->port);
+    c_args->last_request = clock();
+    printf("Connection established with a client...\n");
+    char recv_buf[BUFFER_LENGTH];
 
+    //Waiting for data from client
+    while(1)
+    {
+        int recieved = recv(c_args->socket, recv_buf, BUFFER_LENGTH, 0);
+        if (recieved >= 0)
+        {
+            printf("Bytes received: %d\n", recieved);
 
-    printf("Connection closing\n");
+            int iSendResult = send(c_args->socket, recv_buf, recieved, 0 );
+            if (iSendResult == SOCKET_ERROR) {
+                printf("echo failed with error: %d\n", WSAGetLastError());
+                closesocket(c_args->socket);
+                return;
+            }
+            printf("Bytes sent: %d\n", iSendResult);
+        }
+        else
+        {
+            printf("recv failed with error: %d\n", WSAGetLastError());
+            closesocket(c_args->socket);
+            return;
+        }
+    }
 }
 
 
