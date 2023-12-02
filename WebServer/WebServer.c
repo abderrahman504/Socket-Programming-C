@@ -3,8 +3,9 @@
 #include <ws2tcpip.h>
 #include <process.h>
 #include "Connection.c"
+#include "../Network.h"
 
-#define DEFAULT_PORT "60000"
+
 WSADATA wsaData;
 
 void listening(SOCKET listen_socket)
@@ -51,7 +52,7 @@ int main(char args[])
     hints.ai_protocol = IPPROTO_TCP;
     hints.ai_flags = AI_PASSIVE;
 
-    iResult = getaddrinfo(NULL, DEFAULT_PORT, &hints, &result);
+    iResult = getaddrinfo(NULL, SERVER_PORT, &hints, &result);
     if (iResult != 0) {
     printf("getaddrinfo failed: %d\n", iResult);
     WSACleanup();
