@@ -15,7 +15,7 @@ void listening(SOCKET listen_socket)
         printf( "Listen failed with error: %ld\n", WSAGetLastError() );
         closesocket(listen_socket);
         WSACleanup();
-        return 1;
+        return;
     }
 
     while(1)
@@ -25,10 +25,11 @@ void listening(SOCKET listen_socket)
         client_socket = accept(listen_socket, NULL, NULL);
         if (client_socket == INVALID_SOCKET) continue;
         ConnectionArgs* args = (ConnectionArgs*) malloc(sizeof(ConnectionArgs));
-        args->socket = &client_socket;
-        Connection* connection = (Connection*) malloc(sizeof(Connection));
-        connection->th_args = args;
-        connection->thread = (HANDLE) _beginthread(connection, 0, args);
+        args->socket = client_socket;
+        Connection* conn = (Connection*) malloc(sizeof(Connection));
+        conn->th_args = args;
+        printf("Creating thread...\n");
+        conn->thread = (HANDLE) _beginthread(connection, 0, (void*)args);
     }
 }
 
@@ -37,6 +38,7 @@ void listening(SOCKET listen_socket)
 
 int main(char args[])
 {
+    printf("Starting server...\n");
     // Initialize Winsock
     int iResult = WSAStartup(MAKEWORD(2,2), &wsaData);
     if (iResult != 0) {
@@ -80,8 +82,8 @@ int main(char args[])
     }
     freeaddrinfo(result);
 
-    
+    printf("Server started\n");
     listening(ListenSocket);
-    printf("Web server closing\n");
+    printf("Server closing\n");
     return 0;
 }

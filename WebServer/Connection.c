@@ -11,17 +11,24 @@
 #define OK "HTTP/1.1 200 OK\r\n"
 #define BLANK_LINE "\r\n"
 
+typedef struct {
+    SOCKET socket;
+    clock_t last_request;
+    char closed;
+}ConnectionArgs;
 
 typedef struct {
     ConnectionArgs* th_args;
     HANDLE thread;
 }Connection;
 
-typedef struct {
-    SOCKET* socket;
-    clock_t last_request;
-    char closed;
-}ConnectionArgs;
+
+void print_optns();
+void parse_rqln(char*, char*, char*);
+void parse_request(char*, char*, char*);
+int handle_get(SOCKET, char*);
+int handle_post(SOCKET);
+int handle_request(char*, SOCKET);
 
 
 void connection(void* args)
@@ -29,7 +36,7 @@ void connection(void* args)
     ConnectionArgs* c_args = args;
     c_args->last_request = clock();
     c_args->closed = 0;
-    printf("Connection established with a client...\n");
+    printf("Connection thread created\n");
     char recv_buf[BUFFER_LENGTH];
 
     //Waiting for a request from the client
@@ -42,18 +49,19 @@ void connection(void* args)
             printf("Bytes received: %d\n", recieved);
             if(recieved > 0)
             {
-                c_args->last_request = clock();
-                int send_result = handle_request(recv_buf, c_args->socket);
-                if (send_result == SOCKET_ERROR)
-                {
-                    printf("response failed with error: %d\n", WSAGetLastError());
-                    closesocket(c_args->socket);
-                    c_args->closed = 1;
-                    return;
-                }
+                printf("Recieved: %s\n", recv_buf);
+                int sendRes = send(c_args->socket, recv_buf, recieved, 0);
+                // c_args->last_request = clock();
+                // int send_result = handle_request(recv_buf, c_args->socket);
+                // if (send_result == SOCKET_ERROR)
+                // {
+                //     printf("response failed with error: %d\n", WSAGetLastError());
+                //     closesocket(c_args->socket);
+                //     c_args->closed = 1;
+                //     return;
+                // }
             }
 
-            //Handling request
         }
         else
         {
@@ -89,7 +97,7 @@ void parse_request(char* request, char* method, char* path)
 
     free(url);
     //Parsing the request options
-    print_optns(request);
+    print_optns();
 }
 
 
@@ -106,7 +114,7 @@ void parse_rqln(char* request_line, char* method, char* url)
 /*
 Prints the request options and blank line.
 */
-void print_optns(char* request)
+void print_optns()
 {
     char* next_optn = strtok(NULL, "\n");
     while(next_optn != NULL)
@@ -130,9 +138,9 @@ void free_rqln(char* method, char* path)
 /*
 Handles request in buffer
 */
-int handle_request(char buffer[], SOCKET* socket)
+int handle_request(char buffer[], SOCKET socket)
 {
-    char* method, path;
+    char *method, *path;
     //Parse and print the request and options
     parse_request(buffer, method, path);
     char get[] = "GET";
@@ -149,7 +157,7 @@ int handle_request(char buffer[], SOCKET* socket)
     return result;
 }
 
-int handle_get(SOCKET* socket, char* path)
+int handle_get(SOCKET socket, char* path)
 {
     printf("Opening %s...\n", path);
     FILE *fh = fopen(path, "r");
@@ -159,7 +167,7 @@ int handle_get(SOCKET* socket, char* path)
         char response[100];
         strcat(response, NOT_FOUND);
         strcat(response, BLANK_LINE);
-        return send(*socket, response, 100, 0);
+        return send(socket, response, 100, 0);
     }
     else //File found
     {
@@ -167,7 +175,7 @@ int handle_get(SOCKET* socket, char* path)
     }
 }
 
-int handle_post(SOCKET* socket)
+int handle_post(SOCKET socket)
 {
     //implement later
 }
