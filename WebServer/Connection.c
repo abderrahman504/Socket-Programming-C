@@ -148,7 +148,7 @@ int handle_request(char buffer[], SOCKET socket)
 {
     char method[10];
     char path[100];
-    sscanf(buffer, "%s %s",method,path);
+    sscanf(buffer, "%s /%s",method,path);
 
     if(strcmp(method,(char*)"GET")==0){
         
@@ -222,7 +222,7 @@ int handle_post(SOCKET socket,char* buffer)
     printf("handling POST ...");
     char path[100],method[10];
     printf("buffer: %s",buffer);
-    sscanf(buffer, "%s %s",method,path);
+    sscanf(buffer, "%s /%s",method,path);
     printf("the path is: %s",path);
 
 
