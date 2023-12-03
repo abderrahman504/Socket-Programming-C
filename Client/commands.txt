@@ -1,1 +1,2 @@
 client_get Test.html localhost 60000
+client_get image.txt localhost 60000

@@ -37,7 +37,7 @@ void start(FILE* file)
         else strcpy(method, "POST");
         char *file_path = strtok(NULL, " ");
         char *servername = strtok(NULL, " ");
-        char *port = strtok(NULL, " ");
+        char *port = strtok(NULL, "\n");
         if (port == NULL) port = DEFAULT_PORT;
        
         //Performing command
@@ -67,6 +67,8 @@ int run_command(char* method, char* file_path, char* servername, char* port)
     {
         handle_post(conn, file_path, servername, port);
     }
+    shutdown(conn, SD_SEND);
+    closesocket(conn);
     return 0;
 }
 
