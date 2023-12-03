@@ -206,23 +206,23 @@ int main(int argc, char *argv[])
 {
     char server_name[16], server_port[8], command_file[32];
     //Checking arguments for server name, port, commands file.
-    if (argc == 0){
+    if (argc == 1){
         printf("Client running with no arguments-default server and port and commands.txt as the commands file...\n");
         strcpy(server_name, SERVER_NAME);
         strcpy(server_port, SERVER_PORT);
         strcpy(command_file, DEFAULT_COMMANDS);
     }
-    else if (argc == 2){
+    else if (argc == 3){
         printf("Client running with 2 arguments-server name and port, with commands.txt as commands file...\n");
-        strcpy(server_name, argv[0]);
-        strcpy(server_port, argv[1]);
+        strcpy(server_name, argv[1]);
+        strcpy(server_port, argv[2]);
         strcpy(command_file, DEFAULT_COMMANDS);
     }
-    else if (argc == 3){
+    else if (argc == 4){
         printf("Client running with 3 arguments-server name, port, and commands file...\n");
-        strcpy(server_name, argv[0]);
-        strcpy(server_port, argv[1]);
-        strcpy(command_file, argv[2]);
+        strcpy(server_name, argv[1]);
+        strcpy(server_port, argv[2]);
+        strcpy(command_file, argv[3]);
     }
     else{
         printf("Invalid number of arguments (%d). Shutting client down\n", argc);
