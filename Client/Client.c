@@ -154,8 +154,9 @@ Creates and connects a socket to the specified server and port.
 conn is an output pointer that contains the created socket.
 Returns 0 if connected succesfully, and 1 otherwise.
 */
-int connect_to_server(char* servername, char* port, SOCKET* conn)
+int connect_to_server(char* servername, char* port, SOCKET* conn_ptr)
 {
+    SOCKET conn = *conn_ptr;
     int iResult;
     //Prep socket creation
     struct addrinfo *result = NULL, hints;
