@@ -94,7 +94,7 @@ int handle_get(SOCKET conn, char* path, char* servername, char* port)
     if (res == 0){
         printf("Recieved nothing\n");
         return 1;
-    } else{
+    } else if (res < 0){
         printf("rcv failed with error %d\n",  WSAGetLastError());
         return 1;
     }
