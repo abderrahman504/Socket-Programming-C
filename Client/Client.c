@@ -23,7 +23,7 @@ void start(FILE* file)
 {
     char recv_buf[BUFFER];
     char line[100];
-    const char DEFAULT_PORT[] = "80";
+    char DEFAULT_PORT[] = "80";
     int error_count = 0;
     printf("Reading from commands file...\n");
     char* check = fgets(line, 100, file);
@@ -156,7 +156,6 @@ Returns 0 if connected succesfully, and 1 otherwise.
 */
 int connect_to_server(char* servername, char* port, SOCKET* conn_ptr)
 {
-    SOCKET conn = *conn_ptr;
     int iResult;
     //Prep socket creation
     struct addrinfo *result = NULL, hints;
@@ -172,9 +171,9 @@ int connect_to_server(char* servername, char* port, SOCKET* conn_ptr)
         return 1;
     }
     //Create socket
-    conn = INVALID_SOCKET;
-    conn = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
-    if (conn == INVALID_SOCKET) {
+    *conn_ptr = INVALID_SOCKET;
+    *conn_ptr = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
+    if (*conn_ptr == INVALID_SOCKET) {
         printf("Error at socket(): %ld\n", WSAGetLastError());
         freeaddrinfo(result);
         WSACleanup();
@@ -182,13 +181,13 @@ int connect_to_server(char* servername, char* port, SOCKET* conn_ptr)
     }
 
     //Connecting to server
-    iResult = connect(conn, result->ai_addr, (int)result->ai_addrlen);
+    iResult = connect(*conn_ptr, result->ai_addr, (int)result->ai_addrlen);
     freeaddrinfo(result);
     if (iResult == SOCKET_ERROR){
-        closesocket(conn);
-        conn = INVALID_SOCKET;
+        closesocket(*conn_ptr);
+        *conn_ptr = INVALID_SOCKET;
     }
-    if (conn == INVALID_SOCKET) {
+    if (*conn_ptr == INVALID_SOCKET) {
         printf("Unable to connect to server!\n");
         WSACleanup();
         return 1;
