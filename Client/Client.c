@@ -230,7 +230,7 @@ int main(int argc, char *argv[])
         return 1;
     }
     //Trying to open commands file
-    FILE* file = fopen(command_file, "r");
+    FILE* file = fopen("commands.txt", "r");
     if (file == NULL){
         printf("Couldn't open commands file %s. Make sure this file exists\n. Closing client.\n", command_file);
         return 1;
