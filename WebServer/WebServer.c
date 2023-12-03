@@ -20,10 +20,29 @@ void listening(SOCKET listen_socket)
 
     while(1)
     {
+
+        struct sockaddr_in clntAddr;
+        int clntAddrLen = sizeof(clntAddr);
+
         //Accepting a client
         SOCKET client_socket = INVALID_SOCKET;
-        client_socket = accept(listen_socket, NULL, NULL);
-        if (client_socket == INVALID_SOCKET) continue;
+        client_socket = accept(listen_socket, (struct sockaddr*)&clntAddr,  &clntAddrLen);
+        if (client_socket == INVALID_SOCKET) {
+            printf("infinite loop");
+            continue;
+        }
+
+
+        // Get the IP Address of the client
+        char clntName[NI_MAXHOST]; // String to contain client address
+
+        if (getnameinfo((struct sockaddr*)&clntAddr, clntAddrLen, clntName, NI_MAXHOST, NULL, 0, NI_NUMERICHOST) == 0) {
+            printf("Handling client %s\n", clntName);
+        } else {
+            perror("Unable to get client address");
+        }
+
+        
         ConnectionArgs* args = (ConnectionArgs*) malloc(sizeof(ConnectionArgs));
         args->socket = client_socket;
         Connection* conn = (Connection*) malloc(sizeof(Connection));
