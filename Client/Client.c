@@ -10,6 +10,8 @@
 void start(FILE*);
 int run_command(char*, char*, char*, char*);
 int connect_to_server(char*, char*, SOCKET*);
+int handle_get(SOCKET, char*, char*, char*);
+int handle_post(SOCKET, char*, char*, char*);
 
 
 /*
@@ -43,7 +45,7 @@ void start(FILE* file)
         //Fetch next command
         check = fgets(line, 100, file);
     }
-    printf("Command file finished with %d fails.\n", error_count);
+    printf("Command file finished with %d errors.\n", error_count);
 }
 
 
@@ -59,39 +61,91 @@ int run_command(char* method, char* file_path, char* servername, char* port)
     if (sock_result == 1) return 1;
     if (strcmp(method, "GET") == 0) //GET request
     {
-        char request[128] = "";
-        strcat(request, "GET ");
-        strcat(request, "/");
-        strcat(request, file_path);
-        strcat(request, " HTTP/1.1\r\n\r\n");
-        //implement later. Send request and recieve response
+        handle_get(conn, file_path, servername, port);
     }
     else //POST request
     {
-        char request[10000];
-        strcat(request, "POST ");
-        strcat(request, "/");
-        strcat(request, file_path);
-        strcat(request, " HTTP/1.1\r\n\r\n");
-        //Read file
-        char body[10000] = "";
-        FILE* f = fopen(file_path, "r");
-        if (f==NULL){
-            printf("Failed to open file to be posted\n");
-            return 1;
-        }
-        char line[10000];
-        char* check = fgets(line, 10000, f);
-        while(check != NULL){
-            strcat(body, line);
-            check = fgets(line, 10000, f);
-        }
-        
-        //Append file to request
-        strcat(request, body);
-        //implement later. Send request and recieve response
+        handle_post(conn, file_path, servername, port);
     }
     return 0;
+}
+
+
+int handle_get(SOCKET conn, char* path, char* servername, char* port)
+{
+    //Construct request
+    char request[128] = "";
+    strcat(request, "GET ");
+    strcat(request, "/");
+    strcat(request, path);
+    strcat(request, " HTTP/1.1\r\n\r\n");
+    //Send request
+    printf("Sending GET to server...\n");
+    int res = send(conn, request, 128, 0);
+    if (res == SOCKET_ERROR){
+        printf("send failed with error: %d\n", WSAGetLastError());
+        closesocket(conn);
+        return 1;
+    }
+    //Recieve response
+    char response[BUFFER];
+    printf("Recieving response...\n");
+    res  = recv(conn, response, BUFFER, 0);
+    if (res == 0){
+        printf("Recieved nothing\n");
+        return 1;
+    } else{
+        printf("rcv failed with error %d\n",  WSAGetLastError());
+        return 1;
+    }
+    //print response
+    printf(response);
+    //read status
+    strtok(response, " ");
+    char* status = strtok(NULL, " ");
+    if (strcmp(status, "200") == 0) //OK
+    {
+        //read blank line
+        strtok(NULL, "\n");
+        char *token = strtok(NULL, "\n");
+        char* body = token + (strlen(token)+1);
+        //read file and store it
+        FILE* dest_file = fopen(path, "w");
+        if (dest_file == NULL){
+            printf("Couldn't store file after GET\n");
+            return 1;
+        }
+        fprintf(dest_file, body);
+        fclose(dest_file);
+        printf("File stored\n");
+    }
+    return 0;
+}
+
+int handle_post(SOCKET conn, char* path, char* servername, char* port)
+{
+    char request[10000];
+    strcat(request, "POST ");
+    strcat(request, "/");
+    strcat(request, path);
+    strcat(request, " HTTP/1.1\r\n\r\n");
+    //Read file
+    char body[10000] = "";
+    FILE* f = fopen(path, "r");
+    if (f==NULL){
+        printf("Failed to open file to be posted\n");
+        return 1;
+    }
+    char line[10000];
+    char* check = fgets(line, 10000, f);
+    while(check != NULL){
+        strcat(body, line);
+        check = fgets(line, 10000, f);
+    }
+    
+    //Append file to request
+    strcat(request, body);
+    //implement later. Send request and recieve response
 }
 
 
