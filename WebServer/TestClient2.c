@@ -12,7 +12,7 @@ int talk_to_server(SOCKET conn)
     int i=1;
     while(1)
     {
-        char msg[100] = "POST client.html HTTP/1.1\r\n\r\n Hi From the Clieeentt\r\n";
+        char msg[100] = "GET /Test.html HTTP/1.1\r\n\r\n Hi From the Clieeentt\r\n";
         int send_result = send(conn, msg, strlen(msg), 0);
         if (send_result == SOCKET_ERROR)
         {

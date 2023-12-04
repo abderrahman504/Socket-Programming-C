@@ -34,7 +34,7 @@ int handle_request(char*, SOCKET);
 void connection(void* args)
 {
     ConnectionArgs* c_args = (ConnectionArgs*)args;
-    free(args);
+    // free(args);
     c_args->last_request = clock();
     c_args->closed = 0;
     printf("Connection thread created\n");
