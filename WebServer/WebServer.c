@@ -64,6 +64,7 @@ void listening(SOCKET listen_socket)
             accept_connection(listen_socket, pos_for_new_conn);
         }
     }
+    int debug = 10;
 }
 
 //Accepts a connection and creates a thread to handle it
@@ -93,6 +94,7 @@ void accept_connection(SOCKET listen_socket, int array_pos)
     
     ConnectionArgs* args = (ConnectionArgs*) malloc(sizeof(ConnectionArgs));
     args->socket = client_socket;
+    connections[array_pos] = args;
     printf("Creating thread...\n");
     _beginthread(connection, 0, (void*)args);
 }
