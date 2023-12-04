@@ -75,9 +75,9 @@ int main(char args[])
 
     iResult = getaddrinfo(NULL, SERVER_PORT, &hints, &result);
     if (iResult != 0) {
-    printf("getaddrinfo failed: %d\n", iResult);
-    WSACleanup();
-    return 1;
+        printf("getaddrinfo failed: %d\n", iResult);
+        WSACleanup();
+        return 1;
     }
 
     //Creating a listening socket
