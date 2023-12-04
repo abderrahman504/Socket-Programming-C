@@ -169,7 +169,6 @@ int connect_to_server(char* servername, char* port, SOCKET* conn_ptr)
     iResult = getaddrinfo(servername, port, &hints, &result);
     if (iResult != 0) {
         printf("getaddrinfo failed: %d\n", iResult);
-        WSACleanup();
         return 1;
     }
     //Create socket
@@ -178,7 +177,6 @@ int connect_to_server(char* servername, char* port, SOCKET* conn_ptr)
     if (*conn_ptr == INVALID_SOCKET) {
         printf("Error at socket(): %ld\n", WSAGetLastError());
         freeaddrinfo(result);
-        WSACleanup();
         return 1;
     }
 
@@ -191,7 +189,6 @@ int connect_to_server(char* servername, char* port, SOCKET* conn_ptr)
     }
     if (*conn_ptr == INVALID_SOCKET) {
         printf("Unable to connect to server!\n");
-        WSACleanup();
         return 1;
     }
     return 0;
