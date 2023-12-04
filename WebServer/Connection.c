@@ -68,7 +68,11 @@ void connection(void* args)
         }
         else if (recieved == 0)
         {
-            //Do nothing
+            //Means the client closed their socket
+            closesocket(c_args->socket);
+            c_args->closed = 1;
+            printf("Client connection closed\n");
+            return;
         }
         else
         {
