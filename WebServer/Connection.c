@@ -42,16 +42,11 @@ void connection(void* args)
         int recieved = recv(c_args->socket, recv_buf, BUFFER_LENGTH, 0);
         if (recieved >= 0)
         {
-            
+            c_args->last_request = clock();
             printf("Bytes received: %d\n", recieved);
             printf("Recieved: %s\n", recv_buf);
             
             int sendRes = handle_request(recv_buf,c_args->socket);
-
-            // int sendRes = send(c_args->socket, recv_buf, recieved, 0);
-            // c_args->last_request = clock();
-            // int send_result = handle_request(recv_buf, c_args->socket);
-
             if (sendRes == SOCKET_ERROR)
             {
                 printf("response failed with error: %d\n", WSAGetLastError());
@@ -59,7 +54,6 @@ void connection(void* args)
                 c_args->closed = 1;
                 return;
             }
-
         }
         else if (recieved == 0)
         {
