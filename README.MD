@@ -17,7 +17,7 @@ The GET request requests a file residing in the server.
 If the file exists then the server should send an OK response followed by data from the file, then a blank line. If the file does not exist the the server should simply respond with a NOT FOUND response.  
   
 ### POST Request
-When the server recieved a POST request, it immediately responds with an OK response and waits for a file to be sent from the client.
+When the server received a POST request, it immediately responds with an OK response and waits for a file to be sent from the client.
   
 ## Closing Connections
 The server closes a connection after a certain amount of time has elapsed without any requests from the client.  

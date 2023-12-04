@@ -39,12 +39,12 @@ void connection(void* args)
     while(!c_args->closed)
     {
         memset(recv_buf, 0, sizeof(recv_buf));
-        int recieved = recv(c_args->socket, recv_buf, BUFFER_LENGTH, 0);
-        if (recieved >= 0)
+        int received = recv(c_args->socket, recv_buf, BUFFER_LENGTH, 0);
+        if (received > 0)
         {
             c_args->last_request = clock();
-            printf("Bytes received: %d\n", recieved);
-            printf("Recieved: %s\n", recv_buf);
+            printf("Bytes received: %d\n", received);
+            printf("Received: %s\n", recv_buf);
             
             int sendRes = handle_request(recv_buf,c_args->socket);
             if (sendRes == SOCKET_ERROR)
@@ -55,7 +55,7 @@ void connection(void* args)
                 return;
             }
         }
-        else if (recieved == 0)
+        else if (received == 0)
         {
             //Means the client closed their socket
             closesocket(c_args->socket);

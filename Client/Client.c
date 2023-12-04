@@ -89,12 +89,12 @@ int handle_get(SOCKET conn, char* path, char* servername, char* port)
         closesocket(conn);
         return 1;
     }
-    //Recieve response
+    //Receive response
     char response[BUFFER];
     printf("Recieving response...\n");
     res  = recv(conn, response, BUFFER, 0);
     if (res == 0){
-        printf("Recieved nothing\n");
+        printf("Received nothing\n");
         return 1;
     } else if (res < 0){
         printf("rcv failed with error %d\n",  WSAGetLastError());
@@ -155,12 +155,12 @@ int handle_post(SOCKET conn, char* path, char* servername, char* port)
         closesocket(conn);
         return 1;
     }
-    //Recieve response
+    //Receive response
     char response[BUFFER];
     printf("Recieving response...\n");
     res  = recv(conn, response, BUFFER, 0);
     if (res == 0){
-        printf("Recieved nothing\n");
+        printf("Received nothing\n");
         return 1;
     } else if (res < 0){
         printf("rcv failed with error %d\n",  WSAGetLastError());
