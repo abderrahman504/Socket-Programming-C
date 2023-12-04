@@ -170,7 +170,7 @@ int handle_get(SOCKET socket, char* path)
     if (file == NULL) //File not found
     {
         printf("Failed to open file\n");
-        char response[100];
+        char response[100] = "";
         strcat(response, NOT_FOUND);
         strcat(response, BLANK_LINE);
         return send(socket, response, 100, 0);
