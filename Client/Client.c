@@ -107,6 +107,7 @@ int handle_get(SOCKET conn, char* path, char* servername, char* port)
     char* status = strtok(NULL, " ");
     if (strcmp(status, "200") == 0) //OK
     {
+        printf("\n"); //Print newline after requested file body
         //read blank line
         strtok(NULL, "\n");
         char *token = strtok(NULL, "\n");
@@ -138,16 +139,36 @@ int handle_post(SOCKET conn, char* path, char* servername, char* port)
         printf("Failed to open file to be posted\n");
         return 1;
     }
-    char line[10000];
-    char* check = fgets(line, 10000, f);
-    while(check != NULL){
+    
+    char line[500];
+    while(fgets(line, 500, f) != NULL){
         strcat(body, line);
-        check = fgets(line, 10000, f);
     }
     
     //Append file to request
     strcat(request, body);
-    //implement later. Send request and recieve response
+    //Send request.
+    printf("Sending POST to server...\n");
+    int res = send(conn, request, 10000, 0);
+    if (res == SOCKET_ERROR){
+        printf("send failed with error: %d\n", WSAGetLastError());
+        closesocket(conn);
+        return 1;
+    }
+    //Recieve response
+    char response[BUFFER];
+    printf("Recieving response...\n");
+    res  = recv(conn, response, BUFFER, 0);
+    if (res == 0){
+        printf("Recieved nothing\n");
+        return 1;
+    } else if (res < 0){
+        printf("rcv failed with error %d\n",  WSAGetLastError());
+        return 1;
+    }
+    //print response
+    printf(response);
+    return 0;
 }
 
 
