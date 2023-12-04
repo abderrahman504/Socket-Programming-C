@@ -94,6 +94,8 @@ void accept_connection(SOCKET listen_socket, int array_pos)
     
     ConnectionArgs* args = (ConnectionArgs*) malloc(sizeof(ConnectionArgs));
     args->socket = client_socket;
+    args->closed = 0;
+    args->last_request = clock();
     connections[array_pos] = args;
     printf("Creating thread...\n");
     _beginthread(connection, 0, (void*)args);

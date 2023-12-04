@@ -150,23 +150,16 @@ int handle_post(SOCKET conn, char* path, char* servername, char* port)
     strcat(request, path);
     strcat(request, " HTTP/1.1\r\n\r\n");
     //Read file
-    char body[BUFFER] = "";
     FILE* f = fopen(path, "rb");
     if (f==NULL){
         printf("Failed to open file to be posted\n");
         return 1;
     }
-    
-    char line[500];
-    while(fgets(line, 500, f) != NULL){
-        strcat(body, line);
-    }
-    
-    //Append file to request
-    strcat(request, body);
+    int requestlen = strlen(request);
+    requestlen += fread(request+requestlen, 1, BUFFER-requestlen, f);
     //Send request.
     printf("Sending POST to server...\n");
-    int res = send(conn, request, strlen(request), 0);
+    int res = send(conn, request, requestlen, 0);
     if (res == SOCKET_ERROR){
         printf("send failed with error: %d\n", WSAGetLastError());
         closesocket(conn);

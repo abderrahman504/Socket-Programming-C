@@ -31,7 +31,6 @@ void connection(void* args)
 {
     ConnectionArgs* c_args = (ConnectionArgs*)args;
     c_args->last_request = clock();
-    c_args->closed = 0;
     printf("Connection thread created\n");
     char recv_buf[BUFFER_LENGTH];
 
@@ -82,66 +81,6 @@ void connection(void* args)
 }
 
 
-//-----------------------REQUEST PARSING--------------------------//
-//Parses a HTTP request sent by a client and prints the type and options.
-// method and path are output pointers 
-//method contains "GET" or "POST".
-//path contains path of the requested file in case of GET.
-// void parse_request(char* request, char* method, char* path)
-// {
-//     //Parsing the request line
-//     char* request_line = strtok(request, "\n");
-//     char* url;
-//     //Extract method and url from request line
-//     parse_rqln(request_line, method, url);
-
-//     char get[] = "GET";
-//     if (strcmp(method, get) == 0)
-//     {
-//         path = (char*) malloc(32);
-//         sscanf(url, "/%s", path);
-//     }
-    
-
-//     free(url);
-//     //Parsing the request options
-//     print_optns();
-// }
-
-
-// Parses a request line and outputs method and url.
-// the output pointers are allocated by this function, so don't allocate them beforehand.
-// void parse_rqln(char* request_line, char* method, char* url)
-// {
-//     method = (char*) malloc(5);
-//     url = (char*) malloc(64);
-//     // char version[16];
-//     sscanf(request_line, "%s %s", method, url);
-//     // printf("%s\n", method);
-// }
-/*
-Prints the request options and blank line.
-*/
-// void print_optns()
-// {
-//     char* next_optn = strtok(NULL, "\n");
-//     while(next_optn != NULL)
-//     {
-//         // if (next_optn[0] == '\r')
-//         //     break;
-//         printf("%s\n", next_optn);
-//         next_optn = strtok(NULL, "\n");
-//     }
-//     // printf("\n");
-// }
-
-
-// void free_rqln(char* method, char* path)
-// {
-//     free(method);
-//     free(path);
-// }
-//------------------------END OF REQUEST PARSING--------------------------//
 //---------------------------REQUEST HANDLING----------------------------//
 /*
 Handles request in buffer
