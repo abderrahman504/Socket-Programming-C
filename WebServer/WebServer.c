@@ -6,7 +6,7 @@
 #include "../Network.h"
 
 #define MAX_CONNECTIONS 100
-#define TIMEOUT_1 100 //Timeout if one connection exists
+#define TIMEOUT_1 2000 //Timeout if one connection exists
 //Array of connections
 ConnectionArgs* connections[MAX_CONNECTIONS];
 int cons_head = 0;
@@ -27,10 +27,12 @@ void listening(SOCKET listen_socket)
 
     while(1)
     {
-        //Close any timed out connections.
+        //Close any timed out connections and count active connections.
+        no_of_connections = 0;
         for (int i = 0; i < cons_head; i++)
         {
             if (connections[i]->closed) continue; //skip closed connections
+            no_of_connections++;
             if ((clock() - connections[i]->last_request)/CLOCKS_PER_SEC >= timeout)
             {
                 printf("Connection timed out\n");
@@ -38,6 +40,7 @@ void listening(SOCKET listen_socket)
                 closesocket(connections[i]->socket);
                 connections[i]->closed = 1;
                 no_of_connections--;
+
             }
         }
 
@@ -61,14 +64,14 @@ void listening(SOCKET listen_socket)
             printf("Listening...\n");
             no_of_connections++;
             timeout = TIMEOUT_1 / no_of_connections;
-            accept_connection(listen_socket, pos_for_new_conn);
+            accept_connection(listen_socket, pos_for_new_conn, cons_head == MAX_CONNECTIONS);
         }
     }
     int debug = 10;
 }
 
 //Accepts a connection and creates a thread to handle it
-void accept_connection(SOCKET listen_socket, int array_pos)
+void accept_connection(SOCKET listen_socket, int array_pos, int overwrite)
 {
     struct sockaddr_in clntAddr;
     int clntAddrLen = sizeof(clntAddr);
@@ -96,6 +99,7 @@ void accept_connection(SOCKET listen_socket, int array_pos)
     args->socket = client_socket;
     args->closed = 0;
     args->last_request = clock();
+    if (overwrite) free(connections[array_pos]);
     connections[array_pos] = args;
     printf("Creating thread...\n");
     _beginthread(connection, 0, (void*)args);
