@@ -5,7 +5,7 @@
 #include "../Network.h"
 
 #define DEFAULT_COMMANDS "commands.txt"
-#define BUFFER 10000
+#define BUFFER 1000000
 
 void start(FILE*);
 int run_command(char*, char*, char*, char*);
@@ -89,14 +89,25 @@ int handle_get(SOCKET conn, char* path, char* servername, char* port)
         closesocket(conn);
         return 1;
     }
+
     //Receive response
     char response[BUFFER];
     printf("Recieving response...\n");
-    res  = recv(conn, response, BUFFER, 0);
-    if (res == 0){
+
+    int bytesReceived;
+    bytesReceived = recv(conn, response, BUFFER, 0);
+    printf("%d\n",bytesReceived);
+        
+    
+
+    if (bytesReceived < 0) {
+        perror("Error receiving data");
+    }
+
+    if (bytesReceived == 0){
         printf("Received nothing\n");
         return 1;
-    } else if (res < 0){
+    } else if (bytesReceived < 0){
         printf("rcv failed with error %d\n",  WSAGetLastError());
         return 1;
     }
@@ -105,36 +116,42 @@ int handle_get(SOCKET conn, char* path, char* servername, char* port)
     //read status
     strtok(response, " ");
     char* status = strtok(NULL, " ");
+    printf("status : %s\n",status);
     if (strcmp(status, "200") == 0) //OK
     {
         printf("\n"); //Print newline after requested file body
-        //read blank line
+    //     //read blank line
         strtok(NULL, "\n");
         char *token = strtok(NULL, "\n");
         char* body = token + (strlen(token)+1);
-        //read file and store it
-        FILE* dest_file = fopen(path, "w");
-        if (dest_file == NULL){
-            printf("Couldn't store file after GET\n");
+        printf("body : %s\n",body);
+    //     //read file and store it
+
+        FILE *file = fopen(path, "wb");
+        if (file == NULL) {
+            perror("Error opening file");
             return 1;
         }
-        fprintf(dest_file, body);
-        fclose(dest_file);
+        // Write the received data to the file
+        fwrite(body, 1, bytesReceived-19, file);
+        fclose(file);
         printf("File stored\n");
+
     }
     return 0;
 }
 
 int handle_post(SOCKET conn, char* path, char* servername, char* port)
 {
-    char request[10000];
+    printf("Hello from posttt\n");
+    char request[BUFFER];
     strcat(request, "POST ");
     strcat(request, "/");
     strcat(request, path);
     strcat(request, " HTTP/1.1\r\n\r\n");
     //Read file
-    char body[10000] = "";
-    FILE* f = fopen(path, "r");
+    char body[BUFFER] = "";
+    FILE* f = fopen(path, "rb");
     if (f==NULL){
         printf("Failed to open file to be posted\n");
         return 1;
@@ -149,7 +166,7 @@ int handle_post(SOCKET conn, char* path, char* servername, char* port)
     strcat(request, body);
     //Send request.
     printf("Sending POST to server...\n");
-    int res = send(conn, request, 10000, 0);
+    int res = send(conn, request, BUFFER, 0);
     if (res == SOCKET_ERROR){
         printf("send failed with error: %d\n", WSAGetLastError());
         closesocket(conn);
