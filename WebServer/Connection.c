@@ -17,10 +17,6 @@ typedef struct {
     char closed;
 }ConnectionArgs;
 
-typedef struct {
-    ConnectionArgs* th_args;
-    HANDLE thread;
-}Connection;
 
 
 void print_optns();
@@ -34,14 +30,13 @@ int handle_request(char*, SOCKET);
 void connection(void* args)
 {
     ConnectionArgs* c_args = (ConnectionArgs*)args;
-    // free(args);
     c_args->last_request = clock();
     c_args->closed = 0;
     printf("Connection thread created\n");
     char recv_buf[BUFFER_LENGTH];
 
     //Waiting for a request from the client
-    while(1)
+    while(!c_args->closed)
     {
         memset(recv_buf, 0, sizeof(recv_buf));
         int recieved = recv(c_args->socket, recv_buf, BUFFER_LENGTH, 0);
@@ -82,6 +77,14 @@ void connection(void* args)
             return;
         }
     }
+    printf("Closing connection...\n");
+    int res = closesocket(c_args->socket);
+    if (res == SOCKET_ERROR)
+    {
+        printf("closesocket failed with error: %d\n", WSAGetLastError());
+        return;
+    }
+    printf("Connection closed.\n");
 }
 
 
