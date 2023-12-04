@@ -1,2 +1,3 @@
 client_get Test.html localhost 80
-client_get image.txt localhost 80
+client_get Test.jpeg localhost 80
+client_get Test.txt localhost 80
