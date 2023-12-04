@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-#define BUFFER_LENGTH 10000
+#define BUFFER_LENGTH 1000000
 
 #define NOT_FOUND "HTTP/1.1 404 Not Found\r\n"
 #define OK "HTTP/1.1 200 OK\r\n"
@@ -168,7 +168,7 @@ int handle_request(char buffer[], SOCKET socket)
 int handle_get(SOCKET socket, char* path)
 {
     printf("Opening %s...\n", path);
-    FILE *file = fopen(path, "r");
+    FILE *file = fopen(path, "rb");
     if (file == NULL) //File not found
     {
         printf("Failed to open file\n");
@@ -179,39 +179,24 @@ int handle_get(SOCKET socket, char* path)
     }
     else //File found
     {
-        //implement later
-        // Determine the size of the file
-        fseek(file, 0, SEEK_END);
-        long file_size = ftell(file);
-        fseek(file, 0, SEEK_SET);
+        
+        char response[BUFFER_LENGTH] = "";
+        strcat(response,OK);
+        strcat(response,BLANK_LINE);
 
-        // Allocate memory to store the entire content of the file
-        char *file_content = (char *)malloc(file_size + 1); // +1 for null terminator
-
-        // Check if memory allocation was successful
-        if (file_content == NULL) {
-            perror("Error allocating memory");
-            fclose(file);
-            char response[100];
-            strcat(response, NOT_FOUND);
-            strcat(response, BLANK_LINE);
-            return send(socket, response, 100, 0);
-
+        size_t bytesRead = fread(response+19, 1, sizeof(response)-19, file);
+        printf("bytesRead = %d\n",bytesRead);
+        printf("%s",response);
+        int result = send(socket, response, bytesRead+19 , 0);
+        if(result==SOCKET_ERROR){
+            printf("error while sending\n");
         }
-
-        // Read the entire content of the file into the buffer
-        fread(file_content, 1, file_size, file);
-
-        // Null-terminate the string
-        file_content[file_size] = '\0';
-
-        // send data
-        // printf("%s",file_content);
-        int result = send(socket, file_content, file_size, 0);
 
         // Clean up: close the file and free the allocated memory
         fclose(file);
-        free(file_content);
+        // free(file_content);
+
+        printf("data sentt\n");
 
         return result;
 
@@ -249,8 +234,6 @@ int handle_post(SOCKET socket,char* buffer)
 
         result = send(socket,response,100,0);
         fclose(file);
-
-        
         return result;
 
     }
