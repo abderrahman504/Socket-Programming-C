@@ -5,13 +5,13 @@
 #include "../Network.h"
 
 #define DEFAULT_COMMANDS "commands.txt"
-#define BUFFER 1000000
+#define BUFFER 100000
 
 void start(FILE*);
 int run_command(char*, char*, char*, char*);
 int connect_to_server(char*, char*, SOCKET*);
-int handle_get(SOCKET, char*, char*, char*);
-int handle_post(SOCKET, char*, char*, char*);
+// int handle_get(SOCKET, char*, char*, char*);
+// int handle_post(SOCKET, char*, char*, char*);
 
 
 /*
@@ -144,7 +144,7 @@ int handle_get(SOCKET conn, char* path, char* servername, char* port)
 int handle_post(SOCKET conn, char* path, char* servername, char* port)
 {
     printf("Hello from posttt\n");
-    char request[BUFFER];
+    char request[BUFFER] = "";
     strcat(request, "POST ");
     strcat(request, "/");
     strcat(request, path);
@@ -166,7 +166,7 @@ int handle_post(SOCKET conn, char* path, char* servername, char* port)
     strcat(request, body);
     //Send request.
     printf("Sending POST to server...\n");
-    int res = send(conn, request, BUFFER, 0);
+    int res = send(conn, request, strlen(request), 0);
     if (res == SOCKET_ERROR){
         printf("send failed with error: %d\n", WSAGetLastError());
         closesocket(conn);

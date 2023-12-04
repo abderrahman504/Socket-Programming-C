@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-#define BUFFER_LENGTH 1000000
+#define BUFFER_LENGTH 100000
 
 #define NOT_FOUND "HTTP/1.1 404 Not Found\r\n"
 #define OK "HTTP/1.1 200 OK\r\n"
@@ -23,8 +23,8 @@ void print_optns();
 void parse_rqln(char*, char*, char*);
 void parse_request(char*, char*, char*);
 int handle_get(SOCKET, char*);
-int handle_post(SOCKET,char*);
-int handle_request(char*, SOCKET);
+int handle_post(SOCKET,char*, int);
+int handle_request(char*, SOCKET, int);
 
 
 void connection(void* args)
@@ -46,7 +46,7 @@ void connection(void* args)
             printf("Bytes received: %d\n", received);
             printf("Received: %s\n", recv_buf);
             
-            int sendRes = handle_request(recv_buf,c_args->socket);
+            int sendRes = handle_request(recv_buf,c_args->socket, received);
             if (sendRes == SOCKET_ERROR)
             {
                 printf("response failed with error: %d\n", WSAGetLastError());
@@ -146,7 +146,7 @@ Prints the request options and blank line.
 /*
 Handles request in buffer
 */
-int handle_request(char buffer[], SOCKET socket)
+int handle_request(char buffer[], SOCKET socket, int received)
 {
     char method[10];
     char path[100];
@@ -161,7 +161,7 @@ int handle_request(char buffer[], SOCKET socket)
     if(strcmp(method,(char*)"POST")==0){
         // post_request();
         printf("POST\n");
-        return handle_post(socket,buffer);
+        return handle_post(socket,buffer, received);
     }
 }
 
@@ -203,7 +203,7 @@ int handle_get(SOCKET socket, char* path)
     }
 }
 
-int handle_post(SOCKET socket,char* buffer)
+int handle_post(SOCKET socket,char* buffer, int received)
 {
     //implement later
     printf("handling POST ...");
@@ -226,7 +226,7 @@ int handle_post(SOCKET socket,char* buffer)
             return result;
         }
         
-        fwrite(bodyStart, 1, BUFFER_LENGTH, file);
+        fwrite(bodyStart, 1, received - (bodyStart - buffer), file);
 
         char response[100];
         strcat(response, OK);
