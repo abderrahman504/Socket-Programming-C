@@ -114,6 +114,7 @@ int handle_get(SOCKET socket, char* path)
         char response[100] = "";
         strcat(response, NOT_FOUND);
         strcat(response, BLANK_LINE);
+        printf("%s",response);
         return send(socket, response, 100, 0);
     }
     else //File found
